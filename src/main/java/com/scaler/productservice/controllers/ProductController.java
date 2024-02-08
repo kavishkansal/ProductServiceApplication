@@ -1,5 +1,8 @@
 package com.scaler.productservice.controllers;
 
+import com.scaler.productservice.services.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,9 +15,17 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductController {
 
+//    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    public ProductController(@Qualifier("FakeProductService") ProductService productService){
+        this.productService = productService;
+    }
+
     @GetMapping("/{id}")
     public String getProductById(@PathVariable Long id) {
-        return "Product fetched with id: " + id;
+        return productService.getProductById(id);
     }
 
     @GetMapping()
