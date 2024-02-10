@@ -1,14 +1,14 @@
 package com.scaler.productservice.controllers;
 
+import com.scaler.productservice.dtos.ExceptionDto;
+import com.scaler.productservice.exceptions.ProductNotFoundException;
+import com.scaler.productservice.models.Product;
 import com.scaler.productservice.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -24,15 +24,24 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public String getProductById(@PathVariable Long id) {
+    public Product getProductById(@PathVariable Long id) throws ProductNotFoundException {
         return productService.getProductById(id);
     }
 
     @GetMapping()
-    public List<String> getAllProducts() {
-        return Collections.emptyList();
+    public List<Product> getAllProducts() {
+        return productService.getAllProducts();
     }
 
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    private ExceptionDto handleProductNotFoundException(ProductNotFoundException e){
+        ExceptionDto exceptionDto = new ExceptionDto();
+        exceptionDto.setMessage(e.getMessage());
+        exceptionDto.setStatus("Failure");
+        return exceptionDto;
+    }
 //    public String getProductByCategory(String category){
 //        return null;
 //    }

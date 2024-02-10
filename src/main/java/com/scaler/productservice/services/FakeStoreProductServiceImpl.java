@@ -1,19 +1,49 @@
 package com.scaler.productservice.services;
 
+import com.scaler.productservice.dtos.FakeStoreProductDto;
+import com.scaler.productservice.exceptions.ProductNotFoundException;
+import com.scaler.productservice.models.Category;
+import com.scaler.productservice.models.Product;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Service("FakeProductService")
 public class FakeStoreProductServiceImpl implements ProductService {
+
+    private RestTemplateBuilder restTemplateBuilder;
+    private String specifiedProductUrl = "https://fakestoreapi.com/products/{id}";
+    private String genericProductUrl = "https://fakestoreapi.com/products/";
+
+
+    @Autowired
+    public FakeStoreProductServiceImpl(RestTemplateBuilder restTemplateBuilder){
+        this.restTemplateBuilder = restTemplateBuilder;
+    }
     @Override
-    public String getProductById(Long id) {
-        return "Product fetched from fake service. Id: " + id;
+    public Product getProductById(Long id) throws ProductNotFoundException {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<FakeStoreProductDto> responseEntity = restTemplate.getForEntity(specifiedProductUrl, FakeStoreProductDto.class,id);
+        if(responseEntity.getBody() == null){
+            throw new ProductNotFoundException("Product Not Found");
+        }
+        return getProductFromFakeStoreProductDto(responseEntity.getBody());
     }
 
     @Override
-    public List<String> getAllProducts() {
-        return null;
+    public List<Product> getAllProducts() {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<FakeStoreProductDto[] > responseEntity = restTemplate.getForEntity(genericProductUrl, FakeStoreProductDto[].class);
+        List<Product> productList = new LinkedList<>();
+        for(FakeStoreProductDto fakeStoreProductDto: responseEntity.getBody()){
+            productList.add(getProductFromFakeStoreProductDto(fakeStoreProductDto));
+        }
+        return productList;
     }
 
     @Override
@@ -29,5 +59,17 @@ public class FakeStoreProductServiceImpl implements ProductService {
     @Override
     public void updateProductById() {
 
+    }
+
+    private Product getProductFromFakeStoreProductDto(FakeStoreProductDto fakeStoreProductDto){
+        Product product = new Product();
+        product.setId(fakeStoreProductDto.getId());
+        product.setTitle(fakeStoreProductDto.getTitle());
+        product.setPrice(fakeStoreProductDto.getPrice());
+        product.setDesc(fakeStoreProductDto.getDescription());
+        Category category = new Category();
+        category.setName(fakeStoreProductDto.getCategory());
+        product.setCategory(category);
+        return product;
     }
 }
