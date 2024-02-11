@@ -1,5 +1,6 @@
 package com.scaler.productservice.services;
 
+import com.scaler.productservice.exceptions.ProductNotFoundException;
 import com.scaler.productservice.models.Product;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +20,13 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public void deleteProductById() {
-
+    public Product deleteProductById(Long id) throws ProductNotFoundException {
+        return null;
     }
 
     @Override
-    public void addProduct() {
-
+    public Product addProduct(Product product) {
+        return null;
     }
 
     @Override

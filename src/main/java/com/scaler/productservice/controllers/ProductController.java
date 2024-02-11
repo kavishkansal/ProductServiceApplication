@@ -4,6 +4,7 @@ import com.scaler.productservice.dtos.ExceptionDto;
 import com.scaler.productservice.exceptions.ProductNotFoundException;
 import com.scaler.productservice.models.Product;
 import com.scaler.productservice.services.ProductService;
+import lombok.experimental.ExtensionMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -33,15 +34,25 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ResponseBody
-    private ExceptionDto handleProductNotFoundException(ProductNotFoundException e){
-        ExceptionDto exceptionDto = new ExceptionDto();
-        exceptionDto.setMessage(e.getMessage());
-        exceptionDto.setStatus("Failure");
-        return exceptionDto;
+    @PostMapping
+    public Product createProduct(@RequestBody Product product){
+        return productService.addProduct(product);
     }
+
+    @DeleteMapping("/{id}")
+    public Product deleteProduct(@PathVariable Long id) throws ProductNotFoundException {
+        return productService.deleteProductById(id);
+    }
+
+//    @ExceptionHandler(ProductNotFoundException.class)
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    @ResponseBody
+//    private ExceptionDto handleProductNotFoundException(ProductNotFoundException e){
+//        ExceptionDto exceptionDto = new ExceptionDto();
+//        exceptionDto.setMessage(e.getMessage());
+//        exceptionDto.setStatus("Failure");
+//        return exceptionDto;
+//    }
 //    public String getProductByCategory(String category){
 //        return null;
 //    }
